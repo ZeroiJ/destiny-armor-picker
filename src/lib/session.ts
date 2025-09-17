@@ -1,0 +1,63 @@
+import { cookies } from "next/headers";
+
+export type BungieSession = {
+  accessToken?: string;
+  refreshToken?: string;
+  membershipId?: string;
+  bungieNetUser?: any;
+  expiresAt?: number; // epoch ms
+  membershipType?: number; // DestinyMembershipType
+};
+
+// Lightweight cookie-backed session (no iron-session)
+const COOKIE_NAME = process.env.IRON_SESSION_COOKIE_NAME || "destiny_session";
+const isProd = process.env.NODE_ENV === "production";
+
+function parseSession(raw: string | undefined): BungieSession {
+  if (!raw) return {};
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return {};
+  }
+}
+
+export async function getSession() {
+  const jar = cookies();
+  const current = parseSession(jar.get(COOKIE_NAME)?.value);
+
+  // Provide a mutable object that mimics iron-session API: save() and destroy()
+  const session: BungieSession & { save: () => Promise<void>; destroy: () => void } = {
+    ...current,
+    async save() {
+      // derive maxAge from token expiry when available, fallback to 30 days
+      const maxAge = (() => {
+        if (typeof session.expiresAt === "number") {
+          const seconds = Math.max(0, Math.floor((session.expiresAt - Date.now()) / 1000));
+          if (seconds > 0) return seconds;
+        }
+        return 60 * 60 * 24 * 30; // 30 days
+      })();
+
+      jar.set(COOKIE_NAME, JSON.stringify({
+        accessToken: session.accessToken,
+        refreshToken: session.refreshToken,
+        membershipId: session.membershipId,
+        bungieNetUser: session.bungieNetUser,
+        expiresAt: session.expiresAt,
+        membershipType: session.membershipType,
+      }), {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: isProd,
+        path: "/",
+        maxAge,
+      });
+    },
+    destroy() {
+      jar.delete(COOKIE_NAME);
+    },
+  };
+
+  return session;
+}
