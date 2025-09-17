@@ -1,17 +1,14 @@
 # Cloudflare Pages configuration for Destiny Armor Picker
-# wrangler v3.88.0+
+# wrangler v4.37.1+
 
 name = "destiny-armor-picker"
 compatibility_date = "2024-01-15"
 
 # Pages configuration
-[build]
-command = "npm run build"
-cwd = "."
+pages_build_output_dir = ".next"
 
-[build.upload]
-format = "directory"
-dir = ".next"
+# Compatibility flags for Next.js (must be array format)
+compatibility_flags = ["nodejs_compat"]
 
 # Environment variables (set these in Cloudflare dashboard)
 [vars]
@@ -25,9 +22,5 @@ enabled = true
 [observability.logs]
 enabled = false
 
-# Compatibility flags for Next.js
-[compatibility_flags]
-nodejs_compat = true
-
-# Functions configuration for API routes
-[[pages_build_output_dir]]
+# Disable telemetry for cleaner builds
+send_metrics = false
