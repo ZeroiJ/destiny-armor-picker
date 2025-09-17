@@ -10,17 +10,10 @@ pages_build_output_dir = ".next"
 # Compatibility flags for Next.js (must be array format)
 compatibility_flags = ["nodejs_compat"]
 
+# Disable telemetry for cleaner builds
+send_metrics = false
+
 # Environment variables (set these in Cloudflare dashboard)
 [vars]
 # These will be overridden by environment variables in Cloudflare dashboard
 NODE_ENV = "production"
-
-# Observability settings
-[observability]
-enabled = true
-
-[observability.logs]
-enabled = false
-
-# Disable telemetry for cleaner builds (top-level setting)
-send_metrics = false
