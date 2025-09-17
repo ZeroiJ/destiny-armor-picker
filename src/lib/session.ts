@@ -23,7 +23,7 @@ function parseSession(raw: string | undefined): BungieSession {
 }
 
 export async function getSession() {
-  const jar = cookies();
+  const jar = await cookies();
   const current = parseSession(jar.get(COOKIE_NAME)?.value);
 
   // Provide a mutable object that mimics iron-session API: save() and destroy()
