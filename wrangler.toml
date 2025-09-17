@@ -22,5 +22,5 @@ enabled = true
 [observability.logs]
 enabled = false
 
-# Disable telemetry for cleaner builds
+# Disable telemetry for cleaner builds (top-level setting)
 send_metrics = false
