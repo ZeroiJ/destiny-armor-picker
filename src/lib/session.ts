@@ -10,7 +10,7 @@ export type BungieSession = {
 };
 
 // Lightweight cookie-backed session (no iron-session)
-const COOKIE_NAME = process.env.IRON_SESSION_COOKIE_NAME || "destiny_session";
+const COOKIE_NAME = process.env.DESTINY_SESSION_COOKIE_NAME || "destiny_session";
 const isProd = process.env.NODE_ENV === "production";
 
 function parseSession(raw: string | undefined): BungieSession {
