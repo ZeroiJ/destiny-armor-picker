@@ -1,19 +1,21 @@
-"use client";
+export const dynamic = "force-dynamic";
+import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+export default async function Home() {
+  // Server-side check for session; works on Vercel and avoids client-only redirects
+  try {
+    const h = headers();
+    const host = h.get("x-forwarded-host") || h.get("host");
+    const proto = h.get("x-forwarded-proto") || "https";
+    const baseUrl = host ? `${proto}://${host}` : "";
 
-export default function Home() {
-  const router = useRouter();
-  useEffect(() => {
-    // Prefetch session and redirect if logged in
-    fetch("/api/me")
-      .then((r) => r.json())
-      .then((d) => {
-        if (d?.loggedIn) router.push("/dashboard");
-      })
-      .catch(() => {});
-  }, [router]);
+    const res = await fetch(`${baseUrl}/api/me`, { cache: "no-store" });
+    if (res.ok) {
+      const d = await res.json();
+      if (d?.loggedIn) redirect("/dashboard");
+    }
+  } catch {}
 
   return (
     <main className="min-h-screen bg-[url('https://images.unsplash.com/photo-1517466787929-af1d2dac0f1a?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center flex items-center justify-center p-6">
