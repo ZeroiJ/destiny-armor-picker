@@ -7,6 +7,7 @@ export type BungieSession = {
   bungieNetUser?: any;
   expiresAt?: number; // epoch ms
   membershipType?: number; // DestinyMembershipType
+  oauthState?: string; // CSRF protection state parameter
 };
 
 // Lightweight cookie-backed session (no iron-session)
@@ -46,6 +47,7 @@ export async function getSession() {
         bungieNetUser: session.bungieNetUser,
         expiresAt: session.expiresAt,
         membershipType: session.membershipType,
+        oauthState: session.oauthState,
       }), {
         httpOnly: true,
         sameSite: "lax",

@@ -2,11 +2,22 @@ import { NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
 import { getBungieAuthorizeUrl } from "@/lib/bungie";
 
+/**
+ * Initiates OAuth authentication flow with Bungie.net
+ * Generates and stores CSRF state parameter for security
+ */
 export async function GET() {
   const session = await getSession();
-  const state = Math.random().toString(36).slice(2);
-  session.expiresAt = Date.now() + 5 * 60 * 1000; // short-lived placeholder
+  
+  // Generate cryptographically secure state parameter for CSRF protection
+  const state = crypto.randomUUID().replace(/-/g, '');
+  
+  // Store state in session for later verification
+  session.oauthState = state;
+  session.expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes for OAuth flow
   await session.save();
-  const url = getBungieAuthorizeUrl(state);
-  return NextResponse.redirect(url);
+  
+  // Redirect to Bungie OAuth authorization endpoint
+  const authUrl = getBungieAuthorizeUrl(state);
+  return NextResponse.redirect(authUrl);
 }
