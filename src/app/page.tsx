@@ -5,7 +5,7 @@ import { headers } from "next/headers";
 export default async function Home() {
   // Server-side check for session; works on Vercel and avoids client-only redirects
   try {
-    const h = headers();
+    const h = await headers();
     const host = h.get("x-forwarded-host") || h.get("host");
     const proto = h.get("x-forwarded-proto") || "https";
     const baseUrl = host ? `${proto}://${host}` : "";
