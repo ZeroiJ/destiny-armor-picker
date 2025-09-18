@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import VisualEditsMessenger from "../visual-edits/VisualEditsMessenger";
 import ErrorReporter from "@/components/ErrorReporter";
 import Script from "next/script";
-import { Header } from "@/components/Header";
+import dynamic from "next/dynamic";
+
+import VisualEditsMessenger from "../visual-edits/VisualEditsMessenger";
+const ClientHeader = dynamic(() => import("@/components/Header").then(m => m.Header), { ssr: false });
+const VisualEditsMessenger = dynamic(() => import("../visual-edits/VisualEditsMessenger"), { ssr: false });
 
 export const metadata: Metadata = {
   title: "Destiny Companion",
@@ -29,8 +32,10 @@ export default function RootLayout({
           data-debug="true"
           data-custom-data='{"appName": "YourApp", "version": "1.0.0", "greeting": "hi"}'
         />
-        <Header />
+        <ClientHeader />
         {children}
+        <VisualEditsMessenger />
+      
         <VisualEditsMessenger />
       </body>
     </html>
