@@ -1,16 +1,10 @@
 export const dynamic = "force-dynamic";
 import { redirect } from "next/navigation";
-import { headers } from "next/headers";
 
 export default async function Home() {
-  // Server-side check for session; works on Vercel and avoids client-only redirects
+  // Server-side check for session using relative fetch to avoid host/proto issues
   try {
-    const h = await headers();
-    const host = h.get("x-forwarded-host") || h.get("host");
-    const proto = h.get("x-forwarded-proto") || "https";
-    const baseUrl = host ? `${proto}://${host}` : "";
-
-    const res = await fetch(`${baseUrl}/api/me`, { cache: "no-store" });
+    const res = await fetch(`/api/me`, { cache: "no-store" });
     if (res.ok) {
       const d = await res.json();
       if (d?.loggedIn) redirect("/dashboard");
