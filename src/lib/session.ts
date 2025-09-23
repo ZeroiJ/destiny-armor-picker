@@ -24,8 +24,13 @@ function parseSession(raw: string | undefined): BungieSession {
 }
 
 export async function getSession() {
-  // use synchronous cookies() per Next.js 15 API
-  const jar = cookies();
+  // use cookies() and normalize to a mutable interface to support get/set/delete across runtimes
+  type MutableCookies = {
+    get: (name: string) => { value: string } | undefined;
+    set: (name: string, value: string, options?: any) => void;
+    delete: (name: string) => void;
+  };
+  const jar = cookies() as unknown as MutableCookies;
   const current = parseSession(jar.get(COOKIE_NAME)?.value);
 
   // Provide a mutable object that mimics iron-session API: save() and destroy()
