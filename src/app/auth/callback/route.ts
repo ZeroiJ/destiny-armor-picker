@@ -19,27 +19,24 @@ export async function GET(request: Request) {
     // Handle OAuth errors from provider
     if (error) {
       console.error("OAuth error:", error, errorDescription);
-      return NextResponse.redirect(
-        `/error?message=${encodeURIComponent(errorDescription || error)}`,
-        { status: 302 }
-      );
+      const url = new URL("/error", request.url);
+      url.searchParams.set("message", errorDescription || error);
+      return NextResponse.redirect(url, { status: 302 });
     }
 
     // Validate required parameters
     if (!code) {
       console.error("Missing authorization code in callback");
-      return NextResponse.redirect(
-        `/error?message=${encodeURIComponent("Missing authorization code")}`,
-        { status: 302 }
-      );
+      const url = new URL("/error", request.url);
+      url.searchParams.set("message", "Missing authorization code");
+      return NextResponse.redirect(url, { status: 302 });
     }
 
     if (!state) {
       console.error("Missing state parameter in callback");
-      return NextResponse.redirect(
-        `/error?message=${encodeURIComponent("Missing state parameter")}`,
-        { status: 302 }
-      );
+      const url = new URL("/error", request.url);
+      url.searchParams.set("message", "Missing state parameter");
+      return NextResponse.redirect(url, { status: 302 });
     }
 
     // Get current session for state validation
@@ -48,18 +45,16 @@ export async function GET(request: Request) {
     // CSRF Protection: Verify state parameter against stored session state
     if (!session.oauthState) {
       console.error("No stored OAuth state found in session");
-      return NextResponse.redirect(
-        `/error?message=${encodeURIComponent("Invalid authentication session")}`,
-        { status: 302 }
-      );
+      const url = new URL("/error", request.url);
+      url.searchParams.set("message", "Invalid authentication session");
+      return NextResponse.redirect(url, { status: 302 });
     }
 
     if (state !== session.oauthState) {
       console.error("OAuth state mismatch - potential CSRF attack");
-      return NextResponse.redirect(
-        `/error?message=${encodeURIComponent("Invalid state parameter - authentication failed")}`,
-        { status: 302 }
-      );
+      const url = new URL("/error", request.url);
+      url.searchParams.set("message", "Invalid state parameter - authentication failed");
+      return NextResponse.redirect(url, { status: 302 });
     }
 
     // Clear the used state parameter to prevent replay attacks
@@ -96,16 +91,16 @@ export async function GET(request: Request) {
     await session.save();
 
     // Successful authentication - redirect to dashboard
-    return NextResponse.redirect("/dashboard", { status: 302 });
+    const successUrl = new URL("/dashboard", request.url);
+    return NextResponse.redirect(successUrl, { status: 302 });
 
   } catch (error: any) {
     console.error("Authentication callback error:", error);
     
     // Provide user-friendly error message
     const errorMessage = error.message || "Authentication failed. Please try again.";
-    return NextResponse.redirect(
-      `/error?message=${encodeURIComponent(errorMessage)}`,
-      { status: 302 }
-    );
+    const url = new URL("/error", request.url);
+    url.searchParams.set("message", errorMessage);
+    return NextResponse.redirect(url, { status: 302 });
   }
 }

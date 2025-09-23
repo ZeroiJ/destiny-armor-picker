@@ -6,6 +6,7 @@ export function getBungieAuthorizeUrl(state: string) {
     client_id: process.env.BUNGIE_CLIENT_ID as string,
     response_type: "code",
     state,
+    redirect_uri: process.env.BUNGIE_OAUTH_REDIRECT_URI as string,
   });
   return `${BUNGIE_AUTH_BASE}/en/OAuth/Authorize?${params.toString()}`;
 }
