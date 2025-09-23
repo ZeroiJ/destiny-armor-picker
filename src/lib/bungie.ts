@@ -16,9 +16,13 @@ export async function exchangeCodeForToken(code: string) {
     grant_type: "authorization_code",
     code,
     client_id: process.env.BUNGIE_CLIENT_ID as string,
-    client_secret: process.env.BUNGIE_CLIENT_SECRET as string,
     redirect_uri: process.env.BUNGIE_OAUTH_REDIRECT_URI as string,
   });
+  
+  // Only add client_secret if it exists (for confidential clients)
+  if (process.env.BUNGIE_CLIENT_SECRET) {
+    params.append('client_secret', process.env.BUNGIE_CLIENT_SECRET);
+  }
   const res = await fetch(`${BUNGIE_API_BASE}/App/OAuth/Token/`, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
